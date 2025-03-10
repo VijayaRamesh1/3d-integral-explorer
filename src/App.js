@@ -3,14 +3,17 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Text, PerspectiveCamera } from '@react-three/drei';
 import * as math from 'mathjs';
 
-// Theme colors based on the provided UI designs
+// Theme colors based on the provided UI designs, with improved accessibility
 const theme = {
   background: '#0A1128',
   secondary: '#1C2541',
   highlight: '#3A506B',
   primary: '#5BC0BE',
-  accent: '#FF6B6B',
-  text: '#F0F4FD'
+  accent: '#FF8F8F', // Brighter red for better contrast
+  text: '#FFFFFF', // Pure white for better readability
+  buttonText: '#FFFFFF',
+  disabledButton: '#6c757d',
+  lightText: '#E0E0E0'
 };
 
 // Basic styling for the 3D visualization container and controls
@@ -48,6 +51,30 @@ const inputStyle = {
   fontSize: '16px'
 };
 
+const buttonStyle = {
+  padding: '8px 16px',
+  backgroundColor: theme.primary,
+  color: theme.buttonText,
+  border: 'none',
+  borderRadius: '4px',
+  marginLeft: '10px',
+  cursor: 'pointer',
+  fontSize: '16px',
+  fontWeight: 'bold',
+  transition: 'all 0.2s ease'
+};
+
+const tabButtonStyle = (active) => ({
+  padding: '8px 16px', 
+  backgroundColor: active ? theme.primary : theme.highlight,
+  color: theme.buttonText,
+  border: 'none',
+  borderRadius: '4px',
+  marginRight: '8px',
+  cursor: 'pointer',
+  fontWeight: active ? 'bold' : 'normal'
+});
+
 const loadingStyle = {
   position: 'absolute',
   top: '50%',
@@ -56,6 +83,20 @@ const loadingStyle = {
   color: theme.text,
   fontSize: '24px',
   textAlign: 'center'
+};
+
+const infoBoxStyle = {
+  position: 'absolute',
+  top: '20px',
+  right: '20px',
+  backgroundColor: 'rgba(28, 37, 65, 0.8)',
+  padding: '15px',
+  borderRadius: '8px',
+  border: `1px solid ${theme.primary}`,
+  color: theme.text,
+  maxWidth: '300px',
+  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+  zIndex: 100
 };
 
 // Function component for the 3D axes
@@ -158,7 +199,7 @@ function Surface({ equation, xMin, xMax, yMin, yMax, resolution = 50 }) {
       const normalizedZ = (z - xMin) / (xMax - xMin);
       const validZ = isNaN(normalizedZ) ? 0.5 : Math.max(0, Math.min(1, normalizedZ));
       
-      // Generate a color gradient based on height
+      // Generate a color gradient based on height (more accessible colors)
       const r = Math.min(1, Math.max(0, validZ));
       const g = Math.min(1, Math.max(0, 1 - Math.abs(validZ - 0.5) * 2));
       const b = Math.min(1, Math.max(0, 1 - validZ));
@@ -245,11 +286,11 @@ function AreaVisualization({ equation, xMin, xMax, resolution = 50 }) {
     
     // Top point (on the curve)
     positions.push(x, y, 0);
-    colors.push(0.9, 0.2, 0.4); // Reddish color for the top
+    colors.push(0.95, 0.4, 0.4); // Reddish color for the top (more accessible)
     
     // Bottom point (on the x-axis)
     positions.push(x, 0, 0);
-    colors.push(0.4, 0.2, 0.9); // Blueish color for the bottom
+    colors.push(0.4, 0.4, 0.95); // Blueish color for the bottom (more accessible)
   }
   
   // Create triangles
@@ -326,6 +367,17 @@ const LoadingFallback = () => {
   );
 };
 
+// Example function templates
+const functionTemplates = [
+  { name: "Sine Wave", fn: "sin(x)", type: "2D" },
+  { name: "Parabola", fn: "x^2", type: "2D" },
+  { name: "Gaussian", fn: "exp(-x^2)", type: "2D" },
+  { name: "Sine Surface", fn: "sin(x) * cos(y)", type: "3D" },
+  { name: "Bowl", fn: "x^2 + y^2", type: "3D" },
+  { name: "Ripple", fn: "sin(sqrt(x^2 + y^2))", type: "3D" },
+  { name: "Wave", fn: "sin(3*x) * cos(3*y) * 0.5", type: "3D" }
+];
+
 // Main app component
 function App() {
   const [equation, setEquation] = useState('sin(x) * cos(y)');
@@ -334,15 +386,56 @@ function App() {
   const [yRange, setYRange] = useState([-3, 3]);
   const [hasError, setHasError] = useState(false);
   const [view, setView] = useState('3D'); // '3D' or 'Area'
+  const [currentEquation, setCurrentEquation] = useState(''); // Tracks what's currently being rendered
+  const [showHelp, setShowHelp] = useState(false);
+  
+  // Apply the equation when submitted
+  const applyEquation = () => {
+    if (view === '3D') {
+      setCurrentEquation(equation);
+    } else {
+      setCurrentEquation(areaEquation);
+    }
+  };
+
+  // Apply equation on mount
+  useEffect(() => {
+    setCurrentEquation(equation);
+  }, []);
   
   // Handle equation input change
   const handleEquationChange = (e) => {
     const newEquation = e.target.value;
     setEquation(newEquation);
-    
-    // Also update the area equation for simple functions
-    if (!newEquation.includes('y')) {
-      setAreaEquation(newEquation);
+  };
+
+  // Handle area equation input change
+  const handleAreaEquationChange = (e) => {
+    const newEquation = e.target.value;
+    setAreaEquation(newEquation);
+  };
+
+  // Handle view change
+  const handleViewChange = (newView) => {
+    setView(newView);
+    // Apply the current equation for the selected view
+    if (newView === '3D') {
+      setCurrentEquation(equation);
+    } else {
+      setCurrentEquation(areaEquation);
+    }
+  };
+
+  // Apply a template function
+  const applyTemplate = (template) => {
+    if (template.type === '3D') {
+      setEquation(template.fn);
+      setView('3D');
+      setCurrentEquation(template.fn);
+    } else {
+      setAreaEquation(template.fn);
+      setView('Area');
+      setCurrentEquation(template.fn);
     }
   };
 
@@ -381,58 +474,100 @@ function App() {
   return (
     <div style={containerStyle}>
       <div style={controlsStyle}>
-        <h1 style={{ marginBottom: '16px', color: theme.text }}>3D Integral Explorer</h1>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <h1 style={{ margin: 0, color: theme.text }}>3D Integral Explorer</h1>
+          <button 
+            onClick={() => setShowHelp(!showHelp)}
+            style={{
+              ...buttonStyle,
+              backgroundColor: theme.highlight,
+              marginLeft: '10px'
+            }}
+          >
+            {showHelp ? 'Hide Help' : 'Show Help'}
+          </button>
+        </div>
         
         <div style={{ display: 'flex', marginBottom: '16px' }}>
           <button 
-            onClick={() => setView('3D')} 
-            style={{ 
-              padding: '8px 16px', 
-              backgroundColor: view === '3D' ? theme.primary : theme.highlight,
-              color: theme.text,
-              border: 'none',
-              borderRadius: '4px',
-              marginRight: '8px',
-              cursor: 'pointer'
-            }}
+            onClick={() => handleViewChange('3D')} 
+            style={tabButtonStyle(view === '3D')}
           >
             3D Surface
           </button>
           <button 
-            onClick={() => setView('Area')} 
-            style={{ 
-              padding: '8px 16px', 
-              backgroundColor: view === 'Area' ? theme.primary : theme.highlight,
-              color: theme.text,
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
+            onClick={() => handleViewChange('Area')} 
+            style={tabButtonStyle(view === 'Area')}
           >
             Area Under Curve
           </button>
         </div>
         
-        <div>
-          <label style={{ color: theme.text }}>
+        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
+          <label style={{ color: theme.text, minWidth: '150px' }}>
             Function f({view === '3D' ? 'x,y' : 'x'}) = 
-            <input
-              type="text"
-              value={view === '3D' ? equation : areaEquation}
-              onChange={view === '3D' ? handleEquationChange : (e) => setAreaEquation(e.target.value)}
-              style={inputStyle}
-            />
           </label>
+          <input
+            type="text"
+            value={view === '3D' ? equation : areaEquation}
+            onChange={view === '3D' ? handleEquationChange : handleAreaEquationChange}
+            style={inputStyle}
+          />
+          <button 
+            onClick={applyEquation}
+            style={buttonStyle}
+          >
+            Visualize
+          </button>
           
           {info.area && (
-            <span style={{ marginLeft: '16px', color: theme.accent }}>
+            <span style={{ marginLeft: '16px', color: theme.accent, fontWeight: 'bold' }}>
               Area: {info.area}
             </span>
           )}
         </div>
+        
+        <div style={{ marginTop: '10px' }}>
+          <div style={{ color: theme.lightText, marginBottom: '6px' }}>Example Functions:</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {functionTemplates
+              .filter(t => t.type === view)
+              .map((template, index) => (
+                <button 
+                  key={index}
+                  onClick={() => applyTemplate(template)}
+                  style={{
+                    padding: '4px 8px',
+                    backgroundColor: theme.highlight,
+                    color: theme.buttonText,
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '14px'
+                  }}
+                >
+                  {template.name}
+                </button>
+              ))}
+          </div>
+        </div>
       </div>
       
       <div style={canvasContainerStyle}>
+        {showHelp && (
+          <div style={infoBoxStyle}>
+            <h3 style={{ margin: '0 0 10px 0' }}>How to Use</h3>
+            <ul style={{ paddingLeft: '20px', margin: '0 0 10px 0' }}>
+              <li>Type a mathematical function in the input field</li>
+              <li>Click "Visualize" to render the function</li>
+              <li>Click and drag to rotate the 3D view</li>
+              <li>Scroll to zoom in and out</li>
+              <li>Use the example buttons for quick function ideas</li>
+            </ul>
+            <p style={{ margin: '0' }}>In Area mode, the area under the curve is calculated and displayed.</p>
+          </div>
+        )}
+      
         {hasError ? (
           <div style={loadingStyle}>
             <p>3D rendering is not available.</p>
@@ -469,7 +604,7 @@ function App() {
               
               {view === '3D' && (
                 <Surface
-                  equation={equation}
+                  equation={currentEquation}
                   xMin={xRange[0]}
                   xMax={xRange[1]}
                   yMin={yRange[0]}
@@ -480,7 +615,7 @@ function App() {
               
               {view === 'Area' && (
                 <AreaVisualization
-                  equation={areaEquation}
+                  equation={currentEquation}
                   xMin={xRange[0]}
                   xMax={xRange[1]}
                   resolution={100}
