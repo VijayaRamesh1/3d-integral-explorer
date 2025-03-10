@@ -29,7 +29,7 @@ class ErrorBoundary extends Component {
           <p>This may be due to WebGL compatibility issues with your browser or device.</p>
           <div style={{ marginTop: '20px' }}>
             <a 
-              href="/webgl-check.html" 
+              href="/webgl-check" 
               style={{ color: commonStyles.getColor('primary', highContrastMode), textDecoration: 'underline' }}
             >
               Check WebGL Support
