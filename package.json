@@ -1,8 +1,8 @@
 {
   "name": "3d-integral-explorer",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
-  "homepage": ".",
+  "homepage": "https://VijayaRamesh1.github.io/3d-integral-explorer",
   "dependencies": {
     "@react-three/drei": "9.40.0",
     "@react-three/fiber": "8.9.1",
@@ -14,6 +14,7 @@
     "mathjs": "11.5.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-router-dom": "6.10.0",
     "react-scripts": "5.0.1",
     "schema-utils": "4.0.1",
     "styled-components": "5.3.6",
@@ -22,7 +23,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "CI=false GENERATE_SOURCEMAP=false PUBLIC_URL=. react-scripts build",
+    "build": "CI=false GENERATE_SOURCEMAP=false react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
@@ -47,7 +48,8 @@
     ]
   },
   "devDependencies": {
-    "gh-pages": "4.0.0"
+    "gh-pages": "4.0.0",
+    "source-map-explorer": "2.5.3"
   },
   "resolutions": {
     "ajv": "8.12.0",
@@ -55,7 +57,7 @@
     "nth-check": "2.1.1"
   },
   "engines": {
-    "node": ">=16.0.0 <17.0.0",
-    "npm": ">=8.0.0 <9.0.0"
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
   }
 }
