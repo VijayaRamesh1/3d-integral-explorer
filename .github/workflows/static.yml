@@ -34,31 +34,20 @@ jobs:
       - name: Clean npm cache
         run: npm cache clean --force
       
-      - name: Install NPM Latest
-        run: npm install -g npm@latest
+      # Skip npm update - use the one that comes with Node.js 16
       
       - name: Create Clean node_modules
         run: |
           rm -rf node_modules
           rm -f package-lock.json
       
-      - name: Install ajv explicitly
-        run: npm install ajv@8.12.0 ajv-keywords@5.1.0
-      
-      - name: Install main dependencies
+      - name: Install dependencies
         run: npm install --legacy-peer-deps --no-audit --no-fund
       
-      - name: List installed packages
-        run: npm list ajv ajv-keywords schema-utils webpack terser-webpack-plugin
-      
-      - name: Build with debug
+      - name: Build
         run: |
-          set -x
           export NODE_OPTIONS=--max_old_space_size=4096
           CI=false GENERATE_SOURCEMAP=false npm run build
-      
-      - name: Test build output
-        run: ls -la build || true
       
       - name: Setup Pages
         uses: actions/configure-pages@v5
