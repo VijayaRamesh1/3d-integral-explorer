@@ -1,98 +1,71 @@
 import React from 'react';
-import { useAppContext } from '../../contexts/AppContext';
-import { commonStyles } from '../../styles/theme';
 
-const RangeSelector = () => {
-  const { xRange, setXRange, yRange, setYRange, view, highContrastMode } = useAppContext();
-  
-  // Helper function to parse and validate range input
-  const handleRangeChange = (rangeType, index, value) => {
-    const numValue = parseFloat(value);
-    
-    if (isNaN(numValue)) return;
-    
-    if (rangeType === 'x') {
-      const newRange = [...xRange];
-      newRange[index] = numValue;
-      // Ensure min < max
-      if (index === 0 && numValue >= newRange[1]) {
-        newRange[1] = numValue + 1;
-      } else if (index === 1 && numValue <= newRange[0]) {
-        newRange[0] = numValue - 1;
+function RangeSelector({ limits, setLimits }) {
+  const handleChange = (axis, bound, value) => {
+    setLimits({
+      ...limits,
+      [axis]: {
+        ...limits[axis],
+        [bound]: parseFloat(value)
       }
-      setXRange(newRange);
-    } else {
-      const newRange = [...yRange];
-      newRange[index] = numValue;
-      // Ensure min < max
-      if (index === 0 && numValue >= newRange[1]) {
-        newRange[1] = numValue + 1;
-      } else if (index === 1 && numValue <= newRange[0]) {
-        newRange[0] = numValue - 1;
-      }
-      setYRange(newRange);
-    }
-  };
-  
-  const inputStyle = {
-    ...commonStyles.inputStyle(highContrastMode),
-    width: '70px',
-    margin: '0 5px',
+    });
   };
   
   return (
-    <div style={{ 
-      display: 'flex', 
-      flexWrap: 'wrap', 
-      gap: '20px',
-      marginTop: '16px',
-      color: commonStyles.getColor('text', highContrastMode)
-    }}>
-      <div>
-        <label htmlFor="x-min">X Range:</label>
-        <input
-          id="x-min"
-          type="number"
-          value={xRange[0]}
-          onChange={(e) => handleRangeChange('x', 0, e.target.value)}
-          style={inputStyle}
-          aria-label="X minimum value"
-        />
-        <span>to</span>
-        <input
-          id="x-max"
-          type="number"
-          value={xRange[1]}
-          onChange={(e) => handleRangeChange('x', 1, e.target.value)}
-          style={inputStyle}
-          aria-label="X maximum value"
-        />
-      </div>
+    <div className="range-selector">
+      <h3>Integration Bounds</h3>
       
-      {view === '3D' && (
-        <div>
-          <label htmlFor="y-min">Y Range:</label>
-          <input
-            id="y-min"
-            type="number"
-            value={yRange[0]}
-            onChange={(e) => handleRangeChange('y', 0, e.target.value)}
-            style={inputStyle}
-            aria-label="Y minimum value"
-          />
-          <span>to</span>
-          <input
-            id="y-max"
-            type="number"
-            value={yRange[1]}
-            onChange={(e) => handleRangeChange('y', 1, e.target.value)}
-            style={inputStyle}
-            aria-label="Y maximum value"
-          />
+      <div className="range-controls">
+        <div className="range-group">
+          <label>X Range:</label>
+          <div className="range-inputs">
+            <div className="input-group">
+              <label>Min:</label>
+              <input
+                type="number"
+                value={limits.x.min}
+                onChange={(e) => handleChange('x', 'min', e.target.value)}
+                step="0.5"
+              />
+            </div>
+            <div className="input-group">
+              <label>Max:</label>
+              <input
+                type="number"
+                value={limits.x.max}
+                onChange={(e) => handleChange('x', 'max', e.target.value)}
+                step="0.5"
+              />
+            </div>
+          </div>
         </div>
-      )}
+        
+        <div className="range-group">
+          <label>Y Range:</label>
+          <div className="range-inputs">
+            <div className="input-group">
+              <label>Min:</label>
+              <input
+                type="number"
+                value={limits.y.min}
+                onChange={(e) => handleChange('y', 'min', e.target.value)}
+                step="0.5"
+              />
+            </div>
+            <div className="input-group">
+              <label>Max:</label>
+              <input
+                type="number"
+                value={limits.y.max}
+                onChange={(e) => handleChange('y', 'max', e.target.value)}
+                step="0.5"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
-};
+}
 
 export default RangeSelector;
