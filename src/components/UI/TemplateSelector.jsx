@@ -1,40 +1,37 @@
 import React from 'react';
 import { useAppContext } from '../../contexts/AppContext';
-import { commonStyles } from '../../styles/theme';
 
-const TemplateSelector = () => {
-  const { functionTemplates, view, applyTemplate, highContrastMode } = useAppContext();
+function TemplateSelector() {
+  const { functionType, setFunctionType } = useAppContext();
   
-  const templates = functionTemplates[view === '3D' ? '3D' : '2D'] || [];
+  const templates = [
+    { id: 'polynomial', label: 'Polynomial', formula: 'f(x,y) = x² + y²' },
+    { id: 'trigonometric', label: 'Trigonometric', formula: 'f(x,y) = sin(x) × cos(y)' },
+    { id: 'exponential', label: 'Exponential', formula: 'f(x,y) = e^(-(x² + y²)/4)' },
+  ];
   
   return (
-    <div style={{ marginTop: '16px' }}>
-      <div style={{ color: commonStyles.getColor('lightText', highContrastMode), marginBottom: '8px' }}>
-        <strong>Example Functions:</strong>
-      </div>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-        {templates.map((template, index) => (
-          <button 
-            key={index}
-            onClick={() => applyTemplate({ ...template, category: view })}
-            style={{
-              padding: '4px 8px',
-              backgroundColor: commonStyles.getColor('highlight', highContrastMode),
-              color: commonStyles.getColor('buttonText', highContrastMode),
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '14px'
-            }}
-            title={template.description}
-            aria-label={`Apply ${template.name} function: ${template.fn}`}
+    <div className="template-selector">
+      <h3>Function Templates</h3>
+      
+      <div className="template-options">
+        {templates.map(template => (
+          <div 
+            key={template.id}
+            className={`template-card ${functionType === template.id ? 'selected' : ''}`}
+            onClick={() => setFunctionType(template.id)}
           >
-            {template.name}
-          </button>
+            <div className="template-header">
+              <h4>{template.label}</h4>
+            </div>
+            <div className="template-formula">
+              {template.formula}
+            </div>
+          </div>
         ))}
       </div>
     </div>
   );
-};
+}
 
 export default TemplateSelector;
