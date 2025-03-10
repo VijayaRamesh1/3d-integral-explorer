@@ -5,9 +5,21 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #0A1128;
-  color: #F0F4FD;
+  background-color: #f0f0f0;
+  color: #333;
   overflow-x: hidden;
+  height: 100%;
+  width: 100%;
+}
+
+html {
+  height: 100%;
+  width: 100%;
+}
+
+#root {
+  height: 100%;
+  width: 100%;
 }
 
 code {
@@ -24,14 +36,31 @@ code {
 }
 
 ::-webkit-scrollbar-track {
-  background: #1C2541;
+  background: #e0e0e0;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #3A506B;
+  background: #888;
   border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #5BC0BE;
+  background: #555;
+}
+
+canvas {
+  display: block;
+  outline: none;
+}
+
+h1 {
+  margin: 0 0 16px 0;
+  color: #333;
+}
+
+input {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
 }
