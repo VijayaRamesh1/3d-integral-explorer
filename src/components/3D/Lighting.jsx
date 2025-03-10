@@ -1,26 +1,34 @@
 import React from 'react';
-import { useAppContext } from '../../contexts/AppContext';
 
-const Lighting = () => {
-  const { highContrastMode } = useAppContext();
-  
-  // Increase lighting intensity for high contrast mode
-  const ambientIntensity = highContrastMode ? 0.8 : 0.6;
-  const directionalIntensity = highContrastMode ? 1.2 : 1;
-  
+function Lighting() {
   return (
     <>
-      <ambientLight intensity={ambientIntensity} />
-      <pointLight position={[10, 10, 10]} intensity={directionalIntensity} castShadow />
-      <directionalLight
-        position={[5, 8, 5]}
-        intensity={directionalIntensity}
+      {/* Ambient light for overall scene brightness */}
+      <ambientLight intensity={0.3} />
+      
+      {/* Main directional light */}
+      <directionalLight 
+        position={[10, 10, 10]} 
+        intensity={1} 
         castShadow
-        shadow-mapSize-width={1024}
-        shadow-mapSize-height={1024}
+        shadow-mapSize-width={2048}
+        shadow-mapSize-height={2048}
+      />
+      
+      {/* Fill light from opposite side */}
+      <directionalLight 
+        position={[-10, 5, -10]} 
+        intensity={0.5} 
+      />
+      
+      {/* Subtle blue lighting from below for dimension */}
+      <hemisphereLight 
+        skyColor={0xffffbb} 
+        groundColor={0x080820} 
+        intensity={0.2} 
       />
     </>
   );
-};
+}
 
 export default Lighting;
