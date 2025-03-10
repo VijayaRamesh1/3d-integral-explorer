@@ -29,18 +29,23 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 16
       
-      - name: List files in directory
-        run: ls -la
+      - name: Clear npm cache
+        run: npm cache clean --force
       
       - name: Install dependencies
-        run: npm install --legacy-peer-deps
-      
-      - name: Build with debug output
         run: |
-          echo "Starting build process..."
-          CI=false npm run build
+          npm install -g npm@9.6.7
+          npm install --legacy-peer-deps --no-audit --no-fund
+      
+      - name: Build
+        run: |
+          export NODE_OPTIONS=--max_old_space_size=4096
+          npm run build
+      
+      - name: Test build output
+        run: ls -la build
       
       - name: Setup Pages
         uses: actions/configure-pages@v5
