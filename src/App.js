@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import * as math from 'mathjs';
@@ -14,9 +14,24 @@ const containerStyle = {
 
 const controlsStyle = {
   padding: '20px',
-  backgroundColor: '#fff',
-  boxShadow: '0 0 10px rgba(0,0,0,0.1)',
+  backgroundColor: 'rgb(255, 255, 255)',
+  boxShadow: 'rgba(0, 0, 0, 0.1) 0px 0px 10px',
   zIndex: 10
+};
+
+const canvasContainerStyle = {
+  flex: '1',
+  position: 'relative',
+  backgroundColor: '#e0e0e0'
+};
+
+const loadingStyle = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  color: '#333',
+  fontSize: '24px'
 };
 
 // Function component for the 3D surface visualization
@@ -37,6 +52,7 @@ function Surface({ equation, xMin, xMax, yMin, yMax, resolution }) {
       try {
         const scope = { x, y };
         z = math.evaluate(equation, scope);
+        if (isNaN(z) || !isFinite(z)) z = 0;
       } catch (e) {
         z = 0; // Default if evaluation fails
       }
@@ -46,7 +62,8 @@ function Surface({ equation, xMin, xMax, yMin, yMax, resolution }) {
       
       // Add color based on height (z value)
       const normalizedZ = (z - xMin) / (xMax - xMin);
-      colors.push(0.5, normalizedZ, 1-normalizedZ);
+      const validZ = isNaN(normalizedZ) ? 0.5 : Math.max(0, Math.min(1, normalizedZ));
+      colors.push(0.5, validZ, 1-validZ);
     }
   }
   
@@ -92,11 +109,23 @@ function Surface({ equation, xMin, xMax, yMin, yMax, resolution }) {
   );
 }
 
+// Loading component for Suspense fallback
+const LoadingFallback = () => {
+  return <div style={loadingStyle}>Loading 3D View...</div>;
+};
+
 // Main app component
 function App() {
   const [equation, setEquation] = useState('sin(x) * cos(y)');
   const [xRange, setXRange] = useState([-3, 3]);
   const [yRange, setYRange] = useState([-3, 3]);
+  const [hasError, setHasError] = useState(false);
+  
+  // Error boundary for Canvas
+  const handleError = (error) => {
+    console.error('Error in 3D rendering:', error);
+    setHasError(true);
+  };
   
   return (
     <div style={containerStyle}>
@@ -115,20 +144,35 @@ function App() {
         </div>
       </div>
       
-      <Canvas camera={{ position: [5, 5, 5], fov: 75 }}>
-        <ambientLight intensity={0.5} />
-        <pointLight position={[10, 10, 10]} />
-        <OrbitControls />
-        <axesHelper args={[5]} />
-        <Surface
-          equation={equation}
-          xMin={xRange[0]}
-          xMax={xRange[1]}
-          yMin={yRange[0]}
-          yMax={yRange[1]}
-          resolution={20}
-        />
-      </Canvas>
+      <div style={canvasContainerStyle}>
+        {hasError ? (
+          <div style={loadingStyle}>
+            <p>3D rendering is not available.</p>
+            <p>Please check your browser's WebGL support.</p>
+          </div>
+        ) : (
+          <Suspense fallback={<LoadingFallback />}>
+            <Canvas 
+              camera={{ position: [5, 5, 5], fov: 75 }}
+              onError={handleError}
+              style={{ width: '100%', height: '100%' }}
+            >
+              <ambientLight intensity={0.5} />
+              <pointLight position={[10, 10, 10]} />
+              <OrbitControls />
+              <axesHelper args={[5]} />
+              <Surface
+                equation={equation}
+                xMin={xRange[0]}
+                xMax={xRange[1]}
+                yMin={yRange[0]}
+                yMax={yRange[1]}
+                resolution={20}
+              />
+            </Canvas>
+          </Suspense>
+        )}
+      </div>
     </div>
   );
 }
