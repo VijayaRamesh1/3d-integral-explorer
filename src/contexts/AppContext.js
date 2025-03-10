@@ -18,6 +18,7 @@ export const AppProvider = ({ children }) => {
   });
   const [resolution, setResolution] = useState(30); // Grid resolution
   const [theme, setTheme] = useState('light');
+  const [highContrastMode, setHighContrastMode] = useState(false);
 
   // Values to be provided by context
   const contextValue = {
@@ -33,6 +34,8 @@ export const AppProvider = ({ children }) => {
     setResolution,
     theme,
     setTheme,
+    highContrastMode,
+    setHighContrastMode
   };
 
   return (
