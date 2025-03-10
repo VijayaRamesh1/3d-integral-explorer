@@ -16,10 +16,11 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '16'
-          cache: 'npm'
-      
+          # Removed cache option as we don't have a lock file yet
+
       - name: Install dependencies 📦
-        run: npm ci
+        # Using npm install instead of npm ci to generate a lock file
+        run: npm install
         
       - name: Build 🏗️
         run: |
