@@ -34,8 +34,6 @@ jobs:
       - name: Clean npm cache
         run: npm cache clean --force
       
-      # Skip npm update - use the one that comes with Node.js 16
-      
       - name: Create Clean node_modules
         run: |
           rm -rf node_modules
@@ -44,10 +42,21 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps --no-audit --no-fund
       
-      - name: Build
+      - name: Debug PUBLIC_URL
+        run: |
+          echo "PUBLIC_URL = $PUBLIC_URL"
+      
+      - name: Build with explicit PUBLIC_URL
         run: |
           export NODE_OPTIONS=--max_old_space_size=4096
+          export PUBLIC_URL="https://vijayaramesh1.github.io/3d-integral-explorer"
           CI=false GENERATE_SOURCEMAP=false npm run build
+      
+      - name: List build files
+        run: ls -la build
+      
+      - name: List JS files
+        run: find build -name "*.js" | sort
       
       - name: Setup Pages
         uses: actions/configure-pages@v5
