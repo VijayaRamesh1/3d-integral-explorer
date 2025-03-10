@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebGL Support Check</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        h1 {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        a {
+            color: #0366d6;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebGL Support Checker</h1>
+    <p>This page checks if your browser supports WebGL, which is required for the 3D Integral Explorer.</p>
+    
+    <div id="webgl-status" class="status"></div>
+    
+    <div id="details"></div>
+    
+    <p><button id="check-button">Check WebGL Support</button></p>
+    
+    <p><a href="/">Return to 3D Integral Explorer</a></p>
+
+    <script>
+        document.getElementById('check-button').addEventListener('click', checkWebGL);
+        
+        function checkWebGL() {
+            const statusEl = document.getElementById('webgl-status');
+            const detailsEl = document.getElementById('details');
+            
+            // Create a temporary canvas
+            const canvas = document.createElement('canvas');
+            let gl;
+            
+            try {
+                // Try to get WebGL context
+                gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                
+                if (!gl) {
+                    // No WebGL support
+                    statusEl.className = 'status error';
+                    statusEl.innerHTML = '<strong>WebGL is not supported in your browser.</strong>';
+                    
+                    detailsEl.innerHTML = '<p>Your browser does not support WebGL, which is required for the 3D Integral Explorer. Please try using a modern browser like Chrome, Firefox, or Edge.</p>';
+                    return;
+                }
+                
+                // WebGL is supported
+                statusEl.className = 'status success';
+                statusEl.innerHTML = '<strong>WebGL is supported in your browser.</strong>';
+                
+                // Get additional details
+                const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                let vendor = 'Unknown';
+                let renderer = 'Unknown';
+                
+                if (debugInfo) {
+                    vendor = gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
+                    renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+                }
+                
+                const webglVersion = gl.getParameter(gl.VERSION);
+                const shadingLanguageVersion = gl.getParameter(gl.SHADING_LANGUAGE_VERSION);
+                const extensions = gl.getSupportedExtensions();
+                
+                detailsEl.innerHTML = `
+                    <h2>WebGL Details</h2>
+                    <p><strong>WebGL Version:</strong> ${webglVersion}</p>
+                    <p><strong>GLSL Version:</strong> ${shadingLanguageVersion}</p>
+                    <p><strong>Vendor:</strong> ${vendor}</p>
+                    <p><strong>Renderer:</strong> ${renderer}</p>
+                    <p><strong>Maximum Viewport Dimensions:</strong> ${gl.getParameter(gl.MAX_VIEWPORT_DIMS)}</p>
+                    <p><strong>Maximum Texture Size:</strong> ${gl.getParameter(gl.MAX_TEXTURE_SIZE)}</p>
+                    
+                    <h3>Supported Extensions</h3>
+                    <pre>${extensions.join('\n')}</pre>
+                `;
+                
+            } catch (e) {
+                // Error occurred
+                statusEl.className = 'status error';
+                statusEl.innerHTML = '<strong>Error checking WebGL support:</strong> ' + e.message;
+                
+                detailsEl.innerHTML = '<p>An error occurred while checking WebGL support. This might indicate that WebGL is not available in your browser.</p>';
+            }
+        }
+        
+        // Auto-run check on page load
+        window.onload = checkWebGL;
+    </script>
+</body>
+</html>
