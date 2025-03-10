@@ -1,3 +1,12 @@
+:root {
+  --color-background: #0A1128;
+  --color-secondary: #1C2541;
+  --color-highlight: #3A506B;
+  --color-primary: #5BC0BE;
+  --color-accent: #FF6B6B;
+  --color-text: #F0F4FD;
+}
+
 body {
   margin: 0;
   font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Oxygen',
@@ -5,8 +14,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f0f0f0;
-  color: #333;
+  background-color: var(--color-background);
+  color: var(--color-text);
   overflow-x: hidden;
   height: 100%;
   width: 100%;
@@ -36,16 +45,16 @@ code {
 }
 
 ::-webkit-scrollbar-track {
-  background: #e0e0e0;
+  background: var(--color-secondary);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #888;
+  background: var(--color-highlight);
   border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: var(--color-primary);
 }
 
 canvas {
@@ -55,12 +64,82 @@ canvas {
 
 h1 {
   margin: 0 0 16px 0;
-  color: #333;
+  color: var(--color-text);
+  font-size: 24px;
+  font-weight: bold;
+}
+
+button {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  filter: brightness(110%);
+}
+
+button:active {
+  transform: translateY(1px);
 }
 
 input {
-  padding: 6px 10px;
-  border: 1px solid #ccc;
+  padding: 8px 12px;
+  border: 1px solid var(--color-primary);
   border-radius: 4px;
+  background-color: var(--color-highlight);
+  color: var(--color-text);
   font-size: 16px;
+  font-family: inherit;
+}
+
+input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(91, 192, 190, 0.5);
+}
+
+/* Custom styles for special elements */
+.visualization-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--color-secondary);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 20px;
+  }
+  
+  input {
+    width: 100% !important;
+    margin: 8px 0 !important;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Area under curve styles */
+.area-highlight {
+  fill: var(--color-accent);
+  fill-opacity: 0.5;
+  stroke: var(--color-accent);
+  stroke-width: 1;
+}
+
+/* 3D surface styles */
+.surface-grid {
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 0.5;
 }
